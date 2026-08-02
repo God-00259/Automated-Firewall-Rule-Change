@@ -1,4 +1,4 @@
-# 🔥 Automated Firewall Rule Change Management
+# Automated Firewall Rule Change Management
 
 > **Version:** 1.0 | **Last Updated:** August 2025 & Approval Workflow
 
@@ -9,7 +9,7 @@
 
 ---
 
-## 📖 Project Summary
+## Project Summary
 
 This project is a fully functional web-based system that automates how firewall rules are requested, reviewed, approved, and tracked. Instead of managing firewall changes through email and spreadsheets — which leads to typos, missing approvals, and no accountability — this system provides a structured workflow with intelligent risk scoring, role-based approvals, and an immutable audit trail.
 
@@ -17,7 +17,7 @@ The prototype demonstrates the same core principles used by enterprise tools lik
 
 ---
 
-## 🎯 What Problem This Solves
+## What Problem This Solves
 
 In many organizations, firewall changes still work like this:
 
@@ -36,7 +36,7 @@ This system fixes that by:
 
 ---
 
-## 🛠️ Tools Used
+## Tools Used
 
 | Tool | Purpose |
 |------|---------|
@@ -49,7 +49,7 @@ This system fixes that by:
 
 ---
 
-## 📁 Repository Structure
+## Repository Structure
 
 ```
 firewall-workflow/
@@ -71,7 +71,7 @@ firewall-workflow/
 
 ---
 
-## 🚀 How to Run
+## How to Run
 
 ### Prerequisites
 - Python 3.8 or higher
@@ -104,30 +104,29 @@ python app.py
 
 ---
 
-## ✨ Key Features
+##  Key Features
 
-### 🔥 Auto Risk Scoring Engine
+###  Auto Risk Scoring Engine
 Every request is automatically scored from 0 to 10 based on:
 - **Port danger** (SSH=+4, RDP=+4, common services=+2)
 - **Network exposure** (Internet=+3, internal=+0)
 - **Protocol** (UDP=+1)
 - **Action type** (ALLOW=+1, DROP=-2)
 
-### 🛡️ Four-Eyes Principle
+### Four-Eyes Principle
 The person who submits a request **cannot** approve it. This separation of duties is enforced in code, not just written in a policy document.
 
-### 📊 Immutable Audit Trail
+### Immutable Audit Trail
 Every action is recorded with timestamp, user name, and details. The log cannot be altered through the application interface. This satisfies compliance requirements for **ISO 27001**, **PCI-DSS**, and **NIST**.
 
-### ⏪ One-Click Rollback
+### One-Click Rollback
 Admins can instantly undo any approved change. The system automatically generates the reverse command (replacing `-A` with `-D` in iptables syntax).
 
-### 🔧 Automatic Command Generation
+### Automatic Command Generation
 The system generates exact `iptables` commands based on the request. No manual typing means no typos.
 
 ---
-
-## 📸 Screenshots
+## Screenshots
 
 | Feature | Screenshot |
 |---------|-----------|
@@ -143,7 +142,7 @@ The system generates exact `iptables` commands based on the request. No manual t
 
 ---
 
-## 🎓 For Instructors
+## For Instructors
 
 This repository contains:
 - **Complete source code** in `src/`
@@ -155,7 +154,7 @@ The commit history reflects incremental development across the project period, w
 
 ---
 
-## 🔮 Future Improvements
+## Future Improvements
 
 - Integrate with live firewalls via SSH (Paramiko) or vendor APIs
 - Migrate from SQLite to PostgreSQL for production concurrency
@@ -167,10 +166,8 @@ The commit history reflects incremental development across the project period, w
 
 ---
 
-## 📜 License
+## License
 
 Built for educational purposes as part of CY376 coursework.
 
----
 
-**Built with ❤️ for Network Security, Auditing and Monitoring.**
