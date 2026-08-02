@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}Approve Requests - Firewall Workflow{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>📋 Pending Approval Queue</h2>
+    <p style="color: #666; margin-bottom: 1rem;">Review and approve firewall rule changes. High-risk requests are shown first.</p>
+    
+    {% if requests %}
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Requester</th>
+                <th>Title</th>
+                <th>Details</th>
+                <th>Risk Score</th>
+                <th>Firewall Command</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for req in requests %}
+            <tr>
+                <td><strong>#{{ req.id }}</strong></td>
+                <td>{{ req.requester_name }}</td>
+                <td>{{ req.title }}</td>
+                <td>
+                    <small>
+                        {{ req.source_ip }} → {{ req.destination_ip }}<br>
+                        Port {{ req.port }}/{{ req.protocol }} | {{ req.action }}
+                    </small>
+                </td>
+                <td>
+                    <span class="risk-badge risk-{{ req.risk_level.lower() }}">
+                        {{ req.risk_score }}/10 {{ req.risk_level }}
+                    </span>
+                    {% if req.risk_level == 'HIGH' %}
+                    <div style="margin-top: 0.3rem; font-size: 0.75rem; color: #dc3545;">🔥 Requires extra care!</div>
+                    {% endif %}
+                </td>
+                <td>
+                    <div class="firewall-command" style="font-size: 0.75rem; padding: 0.5rem;">
+                        {{ req.firewall_command }}
+                    </div>
+                </td>
+                <td>
+                    <div style="display: flex; gap: 0.3rem; flex-direction: column;">
+                        <form method="POST" action="{{ url_for('approve_request', req_id=req.id) }}" style="display:inline;">
+                            <button type="submit" class="btn btn-success" style="width: 100%; font-size: 0.8rem;">✓ Approve</button>
+                        </form>
+                        <form method="POST" action="{{ url_for('reject_request', req_id=req.id) }}" style="display:inline;">
+                            <input type="hidden" name="rejection_reason" value="Rejected by approver">
+                            <button type="submit" class="btn btn-danger" style="width: 100%; font-size: 0.8rem;">✗ Reject</button>
+                        </form>
+                        <a href="{{ url_for('view_request', req_id=req.id) }}" class="btn btn-secondary" style="font-size: 0.8rem; text-align: center;">View</a>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div style="text-align: center; padding: 3rem; color: #666;">
+        <h3>🎉 All caught up!</h3>
+        <p>There are no pending requests waiting for approval.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

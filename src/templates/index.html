@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Firewall Workflow{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 1.5rem;">
+    <h2 style="color: #1e3c72;">Welcome, {{ user.full_name }}! 👋</h2>
+    <p style="color: #666;">Role: <strong>{{ user.role.replace('_', ' ').title() }}</strong></p>
+</div>
+
+<!-- Stats Cards -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <h3>{{ stats.total }}</h3>
+        <p>Total Requests</p>
+    </div>
+    <div class="stat-card warning">
+        <h3>{{ stats.pending }}</h3>
+        <p>Pending Approval</p>
+    </div>
+    <div class="stat-card success">
+        <h3>{{ stats.approved }}</h3>
+        <p>Approved</p>
+    </div>
+    <div class="stat-card danger">
+        <h3>{{ stats.rejected }}</h3>
+        <p>Rejected</p>
+    </div>
+    <div class="stat-card danger">
+        <h3>{{ stats.high_risk }}</h3>
+        <p>High Risk Changes</p>
+    </div>
+</div>
+
+<div class="two-column">
+    <!-- Quick Actions -->
+    <div class="card">
+        <h2>⚡ Quick Actions</h2>
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+            <a href="{{ url_for('new_request') }}" class="btn btn-primary">+ New Request</a>
+            {% if user.role in ['security_officer', 'admin'] %}
+            <a href="{{ url_for('approve_list') }}" class="btn btn-success">Review Pending</a>
+            {% endif %}
+            <a href="{{ url_for('audit_trail') }}" class="btn btn-secondary">View Audit Log</a>
+        </div>
+        
+        <div style="margin-top: 1.5rem; padding: 1rem; background: #e7f3ff; border-radius: 8px;">
+            <h4 style="color: #1e3c72; margin-bottom: 0.5rem;">💡 How It Works</h4>
+            <ol style="padding-left: 1.2rem; color: #444; font-size: 0.9rem;">
+                <li>Submit a firewall change request</li>
+                <li>Our <strong>Risk Engine</strong> scores it automatically</li>
+                <li>Security team reviews and approves/rejects</li>
+                <li>Rule is implemented and logged forever</li>
+            </ol>
+        </div>
+    </div>
+    
+    <!-- Recent Activity -->
+    <div class="card">
+        <h2>📋 Recent Requests</h2>
+        {% if recent %}
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Title</th>
+                    <th>Risk</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for req in recent %}
+                <tr>
+                    <td><a href="{{ url_for('view_request', req_id=req.id) }}">#{{ req.id }}</a></td>
+                    <td>{{ req.title }}</td>
+                    <td>
+                        <span class="risk-badge risk-{{ req.risk_level.lower() }}">
+                            {{ req.risk_score }}/10 {{ req.risk_level }}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="status-badge status-{{ req.status }}">
+                            {{ req.status.title() }}
+                        </span>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p style="color: #666; text-align: center; padding: 2rem;">No requests yet. Be the first!</p>
+        {% endif %}
+    </div>
+</div>
+
+<!-- What Makes This Unique -->
+<div class="card" style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: white;">
+    <h2 style="color: white;">🎯 What Makes This System Unique</h2>
+    <div class="two-column" style="margin-top: 1rem;">
+        <div>
+            <h4 style="margin-bottom: 0.5rem;">🔥 Auto Risk Scoring</h4>
+            <p style="font-size: 0.9rem; opacity: 0.9;">Unlike simple ticketing systems, we automatically calculate danger levels based on port, exposure, and protocol.</p>
+        </div>
+        <div>
+            <h4 style="margin-bottom: 0.5rem;">🛡️ Four-Eyes Principle</h4>
+            <p style="font-size: 0.9rem; opacity: 0.9;">No one can approve their own request. Separation of duties prevents insider threats.</p>
+        </div>
+        <div>
+            <h4 style="margin-bottom: 0.5rem;">⏪ One-Click Rollback</h4>
+            <p style="font-size: 0.9rem; opacity: 0.9;">Made a mistake? Admins can instantly revert any change with full audit tracking.</p>
+        </div>
+        <div>
+            <h4 style="margin-bottom: 0.5rem;">📊 Security Timeline</h4>
+            <p style="font-size: 0.9rem; opacity: 0.9;">Every action is logged immutably. Perfect for compliance audits and investigations.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

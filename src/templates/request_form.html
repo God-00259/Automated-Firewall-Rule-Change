@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}New Request - Firewall Workflow{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 700px; margin: 0 auto;">
+    <h2>🔥 Submit Firewall Rule Change</h2>
+    <p style="color: #666; margin-bottom: 1.5rem;">Fill in the details below. Our Risk Engine will automatically score your request.</p>
+    
+    <form method="POST" action="{{ url_for('new_request') }}">
+        <div class="form-group">
+            <label>Request Title</label>
+            <input type="text" name="title" required placeholder="e.g., Allow HTTPS access to web server">
+        </div>
+        
+        <div class="two-column">
+            <div class="form-group">
+                <label>Source IP / Network</label>
+                <input type="text" name="source_ip" required placeholder="e.g., 0.0.0.0/0 or 192.168.1.0/24">
+                <small style="color: #666;">Use <code>0.0.0.0/0</code> for "Any" (Internet). Internal IPs are safer.</small>
+            </div>
+            <div class="form-group">
+                <label>Destination IP / Network</label>
+                <input type="text" name="destination_ip" required placeholder="e.g., 192.168.1.10/32">
+                <small style="color: #666;">The server or network this rule protects.</small>
+            </div>
+        </div>
+        
+        <div class="two-column">
+            <div class="form-group">
+                <label>Port Number</label>
+                <input type="number" name="port" min="0" max="65535" required placeholder="e.g., 443">
+                <small style="color: #666;">Use 0 for "Any port". Common: 80 (HTTP), 443 (HTTPS), 22 (SSH).</small>
+            </div>
+            <div class="form-group">
+                <label>Protocol</label>
+                <select name="protocol" required>
+                    <option value="TCP">TCP</option>
+                    <option value="UDP">UDP</option>
+                    <option value="ICMP">ICMP</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label>Action</label>
+            <select name="action" required>
+                <option value="ALLOW">ALLOW (Permit traffic)</option>
+                <option value="DROP">DROP (Block traffic)</option>
+            </select>
+            <small style="color: #666;">ALLOW opens access. DROP blocks it. DROP requests are safer and may auto-approve.</small>
+        </div>
+        
+        <div class="form-group">
+            <label>Business Justification</label>
+            <textarea name="reason" rows="3" required placeholder="Explain why this change is needed..."></textarea>
+        </div>
+        
+        <div style="background: #fff3cd; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem;">
+            <strong>⚠️ Remember:</strong> Requests opening ports to the Internet (0.0.0.0/0) or using risky ports like 22 (SSH), 3389 (RDP) will receive a <strong>HIGH RISK</strong> score and require strict approval.
+        </div>
+        
+        <button type="submit" class="btn btn-primary" style="width: 100%;">Submit Request for Review</button>
+    </form>
+</div>
+{% endblock %}

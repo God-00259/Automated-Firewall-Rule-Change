@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block title %}Audit Trail - Firewall Workflow{% endblock %}
+
+{% block content %}
+<div class="two-column">
+    <!-- All Requests -->
+    <div class="card">
+        <h2>📊 All Firewall Changes</h2>
+        {% if requests %}
+        <div style="max-height: 600px; overflow-y: auto;">
+            <table style="font-size: 0.85rem;">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Title</th>
+                        <th>Risk</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for req in requests %}
+                    <tr>
+                        <td>#{{ req.id }}</td>
+                        <td>{{ req.title }}</td>
+                        <td>
+                            <span class="risk-badge risk-{{ req.risk_level.lower() }}">
+                                {{ req.risk_score }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if req.rolled_back %}
+                            <span class="status-badge status-rolledback">ROLLED BACK</span>
+                            {% else %}
+                            <span class="status-badge status-{{ req.status }}">{{ req.status.upper() }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{{ url_for('view_request', req_id=req.id) }}" class="btn btn-secondary" style="font-size: 0.75rem; padding: 0.3rem 0.6rem;">View</a>
+                            {% if session.role == 'admin' and req.status == 'approved' and not req.rolled_back %}
+                            <form method="POST" action="{{ url_for('rollback_request', req_id=req.id) }}" style="display:inline;">
+                                <button type="submit" class="btn btn-warning" style="font-size: 0.75rem; padding: 0.3rem 0.6rem; margin-top: 0.2rem;">Rollback</button>
+                            </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p style="color: #666; text-align: center;">No requests found.</p>
+        {% endif %}
+    </div>
+    
+    <!-- Audit Timeline -->
+    <div class="card">
+        <h2>🕐 Security Timeline</h2>
+        <p style="color: #666; font-size: 0.85rem; margin-bottom: 1rem;">Immutable record of every action. This cannot be deleted or altered.</p>
+        
+        {% if audit_entries %}
+        <div class="timeline">
+            {% for entry in audit_entries %}
+            <div class="timeline-item {% if entry.action == 'APPROVED_AND_IMPLEMENTED' %}approved{% elif entry.action == 'REJECTED' %}rejected{% elif entry.action == 'ROLLED_BACK' %}rollback{% endif %}">
+                <div style="display: flex; justify-content: space-between; align-items: start;">
+                    <div>
+                        <strong style="color: #1e3c72;">{{ entry.action.replace('_', ' ').title() }}</strong>
+                        <div style="font-size: 0.85rem; color: #666; margin-top: 0.2rem;">
+                            Request: <a href="{{ url_for('view_request', req_id=entry.request_id) }}">#{{ entry.request_id }} - {{ entry.request_title }}</a>
+                        </div>
+                        <div style="font-size: 0.8rem; color: #444; margin-top: 0.3rem;">
+                            {{ entry.details }}
+                        </div>
+                    </div>
+                    <div style="text-align: right; font-size: 0.8rem; color: #888;">
+                        <div>{{ entry.timestamp }}</div>
+                        <div style="margin-top: 0.2rem;">by {{ entry.performed_by_name }}</div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p style="color: #666; text-align: center;">No audit entries yet.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

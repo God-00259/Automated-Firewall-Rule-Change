@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}Request #{{ req.id }} - Firewall Workflow{% endblock %}
+
+{% block content %}
+<div class="two-column">
+    <!-- Request Details -->
+    <div class="card">
+        <h2>📄 Request #{{ req.id }}: {{ req.title }}</h2>
+        
+        <div style="margin: 1rem 0;">
+            <span class="status-badge status-{{ req.status }}">{{ req.status.upper() }}</span>
+            {% if req.rolled_back %}
+            <span class="status-badge status-rolledback">ROLLED BACK</span>
+            {% endif %}
+            <span class="risk-badge risk-{{ req.risk_level.lower() }}" style="margin-left: 0.5rem;">
+                Risk: {{ req.risk_score }}/10 {{ req.risk_level }}
+            </span>
+        </div>
+        
+        <table style="margin-top: 1rem;">
+            <tr><td><strong>Requester</strong></td><td>{{ req.requester_name }}</td></tr>
+            <tr><td><strong>Source IP</strong></td><td><code>{{ req.source_ip }}</code></td></tr>
+            <tr><td><strong>Destination IP</strong></td><td><code>{{ req.destination_ip }}</code></td></tr>
+            <tr><td><strong>Port</strong></td><td>{{ req.port }}</td></tr>
+            <tr><td><strong>Protocol</strong></td><td>{{ req.protocol }}</td></tr>
+            <tr><td><strong>Action</strong></td><td>{{ req.action }}</td></tr>
+            <tr><td><strong>Reason</strong></td><td>{{ req.reason }}</td></tr>
+            <tr><td><strong>Submitted</strong></td><td>{{ req.created_at }}</td></tr>
+            {% if req.approved_at %}
+            <tr><td><strong>Approved By</strong></td><td>{{ req.approver_name }} at {{ req.approved_at }}</td></tr>
+            {% endif %}
+            {% if req.rejected_at %}
+            <tr><td><strong>Rejected By</strong></td><td>{{ req.rejecter_name }} at {{ req.rejected_at }}</td></tr>
+            <tr><td><strong>Rejection Reason</strong></td><td>{{ req.rejection_reason }}</td></tr>
+            {% endif %}
+            {% if req.rolled_back_at %}
+            <tr><td><strong>Rolled Back By</strong></td><td>{{ req.rollbacker_name }} at {{ req.rolled_back_at }}</td></tr>
+            {% endif %}
+        </table>
+        
+        <div style="margin-top: 1.5rem;">
+            <h4>🔧 Generated Firewall Command</h4>
+            <div class="firewall-command">
+                {{ req.firewall_command }}
+            </div>
+            <p style="font-size: 0.85rem; color: #666; margin-top: 0.5rem;">
+                This command would be executed on the Linux firewall (iptables) upon approval.
+            </p>
+        </div>
+        
+        {% if req.rolled_back %}
+        <div style="margin-top: 1rem; padding: 1rem; background: #fff3cd; border-radius: 8px;">
+            <strong>⏪ Rollback Command:</strong>
+            <div class="firewall-command" style="margin-top: 0.5rem;">
+                {{ req.firewall_command.replace('-A', '-D') }}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    
+    <!-- Audit Trail for this Request -->
+    <div class="card">
+        <h2>🕐 Activity Log for Request #{{ req.id }}</h2>
+        
+        {% if audit %}
+        <div class="timeline">
+            {% for entry in audit %}
+            <div class="timeline-item {% if entry.action == 'APPROVED_AND_IMPLEMENTED' %}approved{% elif entry.action == 'REJECTED' %}rejected{% elif entry.action == 'ROLLED_BACK' %}rollback{% endif %}">
+                <strong style="color: #1e3c72;">{{ entry.action.replace('_', ' ').title() }}</strong>
+                <div style="font-size: 0.85rem; color: #444; margin-top: 0.3rem;">
+                    {{ entry.details }}
+                </div>
+                <div style="font-size: 0.8rem; color: #888; margin-top: 0.3rem;">
+                    {{ entry.timestamp }} by {{ entry.performed_by_name }}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p style="color: #666;">No activity recorded yet.</p>
+        {% endif %}
+        
+        <div style="margin-top: 1.5rem; padding: 1rem; background: #e7f3ff; border-radius: 8px;">
+            <h4 style="color: #1e3c72; margin-bottom: 0.5rem;">📋 Compliance Note</h4>
+            <p style="font-size: 0.85rem; color: #444;">
+                This audit trail is <strong>immutable</strong> and serves as legal evidence of the change control process. 
+                It satisfies requirements for <strong>ISO 27001</strong>, <strong>PCI-DSS</strong>, and <strong>NIST</strong> frameworks.
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}
